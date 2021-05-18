@@ -1,0 +1,19 @@
+# Read the documentation: https://symfony.com/doc/master/bundles/FOSRestBundle/index.html
+fos_rest:
+    body_converter:
+        enabled: true
+        validate: true
+        validation_errors_argument: violations
+    view:
+        formats:
+            json: true
+        view_response_listener: force
+    serializer:
+        serialize_null: true
+    format_listener:
+        rules:
+            - { path: '^/', priorities: [ 'json' ], fallback_format: 'json' }
+    param_fetcher_listener: force
+    exception:
+        codes:
+            'App\AppBundle\Exception\ResourceValidationException': 400

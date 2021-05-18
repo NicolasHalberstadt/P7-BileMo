@@ -6,6 +6,22 @@
 parameters:
 
 services:
+    app.normalizer.ressource_validation_exception:
+        class: App\AppBundle\Normalizer\NotFoundHttpExceptionNormalizer
+        arguments:
+            - { type: 'Symfony\Component\HttpKernel\Exception\NotFoundHttpException' }
+        tags:
+            - { name: app.normalizer }
+    app.exception_subscriber:
+        class: App\AppBundle\EventSubscriber\ExceptionListener
+        arguments:
+            - '@jms_serializer'
+        tags:
+            - { name: kernel.event_subscriber }
+    serializer_listener.product:
+        class: App\Serializer\Listener\ProductListener
+        tags:
+            - { name: jms_serializer.event_subscriber }
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
@@ -25,7 +41,7 @@ services:
     # as action arguments even if you don't extend any base controller class
     App\Controller\:
         resource: '../src/Controller/'
-        tags: ['controller.service_arguments']
+        tags: [ 'controller.service_arguments' ]
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
