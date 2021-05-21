@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Symfony\Component\Security\Core\User\UserInterface;
+use Hateoas\Configuration\Annotation as Hateoas;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -12,6 +13,24 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @UniqueEntity("email")
+ * @Serializer\ExclusionPolicy("ALL")
+ *
+ * @Hateoas\Relation(
+ *     "self",
+ *     href = @Hateoas\Route(
+ *     "app_users_show",
+ *     parameters = { "id" = "expr(object.getId())" },
+ *     absolute = true
+ *     )
+ * )
+ * @Hateoas\Relation(
+ *     "delete",
+ *     href = @Hateoas\Route(
+ *     "app_users_remove",
+ *     parameters = { "id" = "expr(object.getId())" },
+ *     absolute = true
+ *     )
+ * )
  */
 class User implements UserInterface
 {
@@ -20,7 +39,7 @@ class User implements UserInterface
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      *
-     * @Serializer\Groups({"list"})
+     * @Serializer\Expose
      */
     private $id;
     
@@ -28,7 +47,7 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
      *
-     * @Serializer\Groups({"list", "details"})
+     * @Serializer\Expose
      */
     private $firstname;
     
@@ -36,7 +55,7 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
      *
-     * @Serializer\Groups({"list", "details"})
+     * @Serializer\Expose
      */
     private $lastname;
     
@@ -45,7 +64,7 @@ class User implements UserInterface
      * @Assert\NotBlank
      * @Assert\Email
      *
-     * @Serializer\Groups({"list", "details"})
+     * @Serializer\Expose
      */
     private $email;
     
