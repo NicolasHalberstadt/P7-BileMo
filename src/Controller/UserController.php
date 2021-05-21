@@ -8,16 +8,13 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use FOS\RestBundle\Controller\Annotations\Delete;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Component\Translation\Exception\NotFoundResourceException;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 
@@ -68,9 +65,7 @@ class UserController extends AbstractFOSRestController
             return new JsonResponse($error, 404);
         }
         
-        $context = SerializationContext::create()->setGroups(['details']);
-        
-        return new Response($this->serializer->serialize($user, 'json', $context), 200);
+        return new Response($this->serializer->serialize($user, 'json'), 200);
     }
     
     
@@ -105,15 +100,13 @@ class UserController extends AbstractFOSRestController
         $em->persist($user);
         $em->flush();
         
-        $context = SerializationContext::create()->setGroups(['details']);
-        
-        return new Response($this->serializer->serialize($user, 'json', $context), 201);
+        return new Response($this->serializer->serialize($user, 'json'), 201);
     }
     
     /**
      * @Rest\Delete(
      *    path = "/users/{id}",
-     *    name = "app_user_remove",
+     *    name = "app_users_remove",
      *    requirements = {"id"="\d+"}
      * )
      * @Rest\View(StatusCode=204)
@@ -167,16 +160,7 @@ class UserController extends AbstractFOSRestController
             $paramFetcher->get('limit')
         );
         
-        $context = SerializationContext::create()->setGroups(
-            [
-                'Default',
-                'items' => [
-                    'list',
-                ],
-            ]
-        );
-        
-        return new Response($this->serializer->serialize($paginated, 'json', $context), 200);
+        return new Response($this->serializer->serialize($paginated, 'json'), 200);
         
     }
 }
