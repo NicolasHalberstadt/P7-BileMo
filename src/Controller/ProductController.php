@@ -7,6 +7,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Knp\Component\Pager\Pagination\PaginationInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,17 +32,21 @@ class ProductController extends AbstractController
      *     name = "app_products_show",
      *     requirements = {"id"="\d+"}
      *     )
-     * @Rest\View()
      */
-    public function showAction(Product $product): Response
+    public function showAction(int $id): Response
     {
-        $context = SerializationContext::create()->setGroups(
-            [
-                'detail',
-            ]
-        );
-        
-        return new Response($this->serializer->serialize($product, 'json', $context));
+        /* @var $product Product */
+        $product = $this->getDoctrine()->getRepository(Product::class)->find($id);
+        if ($product == null) {
+            $error = [
+                'code' => 404,
+                'message' => 'No product found with this id',
+            ];
+    
+            return new Response($this->serializer->serialize($error, 'json'), 404);
+        }
+    
+        return new Response($this->serializer->serialize($product, 'json'), 200);
     }
     
     
@@ -72,15 +77,6 @@ class ProductController extends AbstractController
             $paramFetcher->get('limit')
         );
         
-        $context = SerializationContext::create()->setGroups(
-            [
-                'Default',
-                'items' => [
-                    'list',
-                ],
-            ]
-        );
-        
-        return new Response($this->serializer->serialize($paginated, 'json', $context), 200);
+        return new Response($this->serializer->serialize($paginated, 'json'), 200);
     }
 }
