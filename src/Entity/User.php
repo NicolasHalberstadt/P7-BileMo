@@ -13,14 +13,13 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @UniqueEntity("email")
- * @Serializer\ExclusionPolicy("ALL")
  *
  * @Hateoas\Relation(
  *     "self",
  *     href = @Hateoas\Route(
  *     "app_users_show",
  *     parameters = { "id" = "expr(object.getId())" },
- *     absolute = true
+ *     absolute = true,
  *     )
  * )
  * @Hateoas\Relation(
@@ -39,7 +38,7 @@ class User implements UserInterface
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      *
-     * @Serializer\Expose
+     * @Serializer\Groups({"details", "creation"})
      */
     private $id;
     
@@ -47,7 +46,7 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
      *
-     * @Serializer\Expose
+     * @Serializer\Groups({"details", "creation"})
      */
     private $firstname;
     
@@ -55,7 +54,7 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
      *
-     * @Serializer\Expose
+     * @Serializer\Groups({"details", "creation"})
      */
     private $lastname;
     
@@ -64,19 +63,22 @@ class User implements UserInterface
      * @Assert\NotBlank
      * @Assert\Email
      *
-     * @Serializer\Expose
+     * @Serializer\Groups({"details", "creation"})
      */
     private $email;
     
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
+     *
+     * @Serializer\Groups({"creation"})
      */
     private $password;
     
     /**
      * @ORM\ManyToOne(targetEntity=Client::class, inversedBy="users")
      * @ORM\JoinColumn(nullable=false)
+     * @Serializer\Groups({"none"})
      */
     private $client;
     
@@ -155,9 +157,9 @@ class User implements UserInterface
         // TODO: Implement getSalt() method.
     }
     
-    public function getUsername(): string
+    public function getUsername()
     {
-        return ($this->getFirstname().' '.$this->getLastname());
+        // TODO: Implement getUsername() method.
     }
     
     public function eraseCredentials()
