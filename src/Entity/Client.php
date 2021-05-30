@@ -10,10 +10,20 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use JMS\Serializer\Annotation as Serializer;
+use Hateoas\Configuration\Annotation as Hateoas;
 
 /**
  * @ORM\Entity(repositoryClass=ClientRepository::class)
  * @UniqueEntity(fields={"email", "username"})
+ *
+ * @Hateoas\Relation(
+ *     "self",
+ *     href = @Hateoas\Route(
+ *     "app_clients_show",
+ *     parameters = { "id" = "expr(object.getId())" },
+ *     absolute = true
+ *     )
+ * )
  */
 class Client implements UserInterface
 {
@@ -28,7 +38,7 @@ class Client implements UserInterface
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
      *
-     * @Serializer\Groups({"details", "creation"})
+     * @Serializer\Groups({"list", "details", "creation"})
      */
     private $username;
     
@@ -37,7 +47,7 @@ class Client implements UserInterface
      * @Assert\NotBlank
      * @Assert\Email
      *
-     * @Serializer\Groups({"details", "creation"})
+     * @Serializer\Groups({"list", "details", "creation"})
      */
     private $email;
     
@@ -49,9 +59,10 @@ class Client implements UserInterface
     
     /**
      * @ORM\OneToMany(targetEntity=User::class, mappedBy="client", orphanRemoval=true)
+     * @Serializer\Groups({"details"})
      */
     private $users;
-
+    
     /**
      * @ORM\Column(type="array")
      */
@@ -131,9 +142,8 @@ class Client implements UserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_CLIENT';
-    
+        
         return array_unique($roles);
     }
     
@@ -146,7 +156,7 @@ class Client implements UserInterface
     
     public function getPassword(): ?string
     {
-       return $this->password;
+        return $this->password;
     }
     
     public function getSalt()
@@ -158,5 +168,5 @@ class Client implements UserInterface
     {
         // TODO: Implement eraseCredentials() method.
     }
-
+    
 }
