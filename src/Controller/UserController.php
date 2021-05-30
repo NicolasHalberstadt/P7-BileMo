@@ -8,12 +8,14 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -57,15 +59,15 @@ class UserController extends AbstractFOSRestController
         /* @var $user User */
         $user = $this->userRepository->find($id);
         if ($user == null) {
-            $error = [
-                'code' => 404,
-                'message' => 'No user found with this id',
-            ];
+            throw $this->createNotFoundException("No user found with this id");
             
-            return new JsonResponse($error, 404);
+        } elseif ($user->getClient() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
         }
         
-        return new Response($this->serializer->serialize($user, 'json'), 200);
+        $context = SerializationContext::create()->setGroups(['details']);
+        
+        return new Response($this->serializer->serialize($user, 'json', $context), 200);
     }
     
     
@@ -75,7 +77,7 @@ class UserController extends AbstractFOSRestController
      *     name = "app_user_create"
      * )
      * @Rest\View(StatusCode=201)
-     * @ParamConverter("user", class="App\Entity\User", converter="fos_rest.request_body")
+     * @ParamConverter("user", class="App\Entity\User", converter="fos_rest.request_body", options={"deserializationContext"={"groups"={"creation"}}})
      * @throws ResourceValidationException
      */
     public function createAction(
@@ -83,7 +85,6 @@ class UserController extends AbstractFOSRestController
         UserPasswordEncoderInterface $encoder,
         ConstraintViolationList $violations
     ): Response {
-        /* todo: get current client here ! */
         if (count($violations)) {
             $message = 'The JSON sent contains invalid data. Here are the errors you need to correct: ';
             foreach ($violations as $violation) {
@@ -91,16 +92,18 @@ class UserController extends AbstractFOSRestController
             }
             throw new ResourceValidationException($message);
         }
-        /* @var $client Client */
-        $client = $this->getDoctrine()->getRepository(Client::class)->find(1);
-        $user->setClient($client);
+        /* @var $currentClient Client */
+        $currentClient = $this->getUser();
+        $user->setClient($currentClient);
         $plainPassword = $user->getPassword();
         $user->setPassword($encoder->encodePassword($user, $plainPassword));
         $em = $this->getDoctrine()->getManager();
         $em->persist($user);
         $em->flush();
         
-        return new Response($this->serializer->serialize($user, 'json'), 201);
+        $context = SerializationContext::create()->setGroups(['details']);
+        
+        return new Response($this->serializer->serialize($user, 'json', $context), 201);
     }
     
     /**
@@ -116,12 +119,9 @@ class UserController extends AbstractFOSRestController
     ): Response {
         $user = $this->userRepository->find($id);
         if ($user == null) {
-            $error = [
-                'code' => 404,
-                'message' => 'No user found with this id',
-            ];
-            
-            return new JsonResponse($error, 404);
+            throw $this->createNotFoundException("No user found with this id");
+        } elseif ($user->getClient() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
         }
         $em = $this->getDoctrine()->getManager();
         $em->remove($user);
@@ -150,17 +150,34 @@ class UserController extends AbstractFOSRestController
         ParamFetcherInterface $paramFetcher,
         PaginatorInterface $paginator
     ): Response {
-        /* todo: get current client here ! */
-        $client = 1;
-        
-        $users = $this->getDoctrine()->getRepository(User::class)->findByClient($client);
+        $client = $this->getUser()->getId();
+        $users = $this->getDoctrine()->getRepository(User::class)->findBy(["client" => "$client"]);
         $paginated = $paginator->paginate(
             $users,
             $paramFetcher->get('page'),
             $paramFetcher->get('limit')
         );
         
-        return new Response($this->serializer->serialize($paginated, 'json'), 200);
+        $context = SerializationContext::create()->setGroups(
+            [
+                'Default',
+                'items' => [
+                    'Default',
+                    'details',
+                    'client' => [
+                        null,
+                    ],
+                ],
+            ]
+        );
         
+        return new Response(
+            $this->serializer->serialize(
+                $paginated,
+                'json',
+                $context
+            ),
+            200
+        );
     }
 }
