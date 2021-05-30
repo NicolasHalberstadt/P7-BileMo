@@ -6,6 +6,8 @@
 parameters:
 
 services:
+    sensio_framework_extra.view.listener:
+        alias: Sensio\Bundle\FrameworkExtraBundle\EventListener\TemplateListener
     app.normalizer.ressource_validation_exception:
         class: App\AppBundle\Normalizer\NotFoundHttpExceptionNormalizer
         arguments:

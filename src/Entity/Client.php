@@ -6,11 +6,16 @@ use App\Repository\ClientRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\Entity(repositoryClass=ClientRepository::class)
+ * @UniqueEntity(fields={"email", "username"})
  */
-class Client
+class Client implements UserInterface
 {
     /**
      * @ORM\Id
@@ -21,23 +26,36 @@ class Client
     
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
+     *
+     * @Serializer\Groups({"details", "creation"})
      */
-    private $name;
+    private $username;
     
     /**
      * @ORM\Column(type="string", length=255)
-     */
-    private $token;
-    
-    /**
-     * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
+     * @Assert\Email
+     *
+     * @Serializer\Groups({"details", "creation"})
      */
     private $email;
+    
+    /**
+     * @ORM\Column(type="string", length=255)
+     * @Serializer\Groups({"creation"})
+     */
+    private $password;
     
     /**
      * @ORM\OneToMany(targetEntity=User::class, mappedBy="client", orphanRemoval=true)
      */
     private $users;
+
+    /**
+     * @ORM\Column(type="array")
+     */
+    private $roles = [];
     
     public function __construct()
     {
@@ -49,26 +67,14 @@ class Client
         return $this->id;
     }
     
-    public function getName(): ?string
+    public function getUsername(): ?string
     {
-        return $this->name;
+        return $this->username;
     }
     
-    public function setName(string $name): self
+    public function setUsername(string $username): self
     {
-        $this->name = $name;
-        
-        return $this;
-    }
-    
-    public function getToken(): ?string
-    {
-        return $this->token;
-    }
-    
-    public function setToken(string $token): self
-    {
-        $this->token = $token;
+        $this->username = $username;
         
         return $this;
     }
@@ -81,6 +87,13 @@ class Client
     public function setEmail(string $email): self
     {
         $this->email = $email;
+        
+        return $this;
+    }
+    
+    public function setPassword(string $password): self
+    {
+        $this->password = $password;
         
         return $this;
     }
@@ -114,4 +127,36 @@ class Client
         
         return $this;
     }
+    
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_CLIENT';
+    
+        return array_unique($roles);
+    }
+    
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+        
+        return $this;
+    }
+    
+    public function getPassword(): ?string
+    {
+       return $this->password;
+    }
+    
+    public function getSalt()
+    {
+        // TODO: Implement getSalt() method.
+    }
+    
+    public function eraseCredentials()
+    {
+        // TODO: Implement eraseCredentials() method.
+    }
+
 }

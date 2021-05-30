@@ -5,9 +5,9 @@ namespace App\Controller;
 use App\AppBundle\Exception\ResourceValidationException;
 use App\Entity\Client;
 use App\Entity\User;
+use App\Repository\UserRepository;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -31,11 +31,17 @@ class UserController extends AbstractFOSRestController
      * @var SerializerInterface
      */
     private $serializer;
+    /**
+     * @var UserRepository
+     */
+    private $userRepository;
     
     
-    public function __construct(SerializerInterface $serializer)
+    public function __construct(SerializerInterface $serializer, UserRepository $userRepository)
     {
         $this->serializer = $serializer;
+        $this->userRepository = $userRepository;
+        
     }
     
     /**
@@ -49,7 +55,7 @@ class UserController extends AbstractFOSRestController
     public function showAction(int $id): Response
     {
         /* @var $user User */
-        $user = $this->getDoctrine()->getRepository(User::class)->find($id);
+        $user = $this->userRepository->find($id);
         if ($user == null) {
             $error = [
                 'code' => 404,
@@ -59,9 +65,7 @@ class UserController extends AbstractFOSRestController
             return new JsonResponse($error, 404);
         }
         
-        $context = SerializationContext::create()->setGroups(['details']);
-        
-        return new Response($this->serializer->serialize($user, 'json', $context), 200);
+        return new Response($this->serializer->serialize($user, 'json'), 200);
     }
     
     
@@ -72,6 +76,7 @@ class UserController extends AbstractFOSRestController
      * )
      * @Rest\View(StatusCode=201)
      * @ParamConverter("user", class="App\Entity\User", converter="fos_rest.request_body")
+     * @throws ResourceValidationException
      */
     public function createAction(
         User $user,
@@ -95,9 +100,34 @@ class UserController extends AbstractFOSRestController
         $em->persist($user);
         $em->flush();
         
-        $context = SerializationContext::create()->setGroups(['details']);
+        return new Response($this->serializer->serialize($user, 'json'), 201);
+    }
+    
+    /**
+     * @Rest\Delete(
+     *    path = "/users/{id}",
+     *    name = "app_users_remove",
+     *    requirements = {"id"="\d+"}
+     * )
+     * @Rest\View(StatusCode=204)
+     */
+    public function removeAction(
+        int $id
+    ): Response {
+        $user = $this->userRepository->find($id);
+        if ($user == null) {
+            $error = [
+                'code' => 404,
+                'message' => 'No user found with this id',
+            ];
+            
+            return new JsonResponse($error, 404);
+        }
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($user);
+        $em->flush();
         
-        return new Response($this->serializer->serialize($user, 'json', $context), 200);
+        return new Response(null, 204);
     }
     
     /**
@@ -130,16 +160,7 @@ class UserController extends AbstractFOSRestController
             $paramFetcher->get('limit')
         );
         
-        $context = SerializationContext::create()->setGroups(
-            [
-                'Default',
-                'items' => [
-                    'list',
-                ],
-            ]
-        );
-        
-        return new Response($this->serializer->serialize($paginated, 'json', $context), 200);
+        return new Response($this->serializer->serialize($paginated, 'json'), 200);
         
     }
 }

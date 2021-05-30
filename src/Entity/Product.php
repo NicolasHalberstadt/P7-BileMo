@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\ProductRepository;
+use Hateoas\Configuration\Annotation as Hateoas;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -10,6 +11,16 @@ use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\Entity(repositoryClass=ProductRepository::class)
+ * @Serializer\ExclusionPolicy("ALL")
+ *
+ * @Hateoas\Relation(
+ *     "self",
+ *     href = @Hateoas\Route(
+ *     "app_products_show",
+ *     parameters = { "id" = "expr(object.getId())" },
+ *     absolute = true
+ *     )
+ * )
  */
 class Product
 {
@@ -18,42 +29,37 @@ class Product
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      *
-     * @Serializer\Groups({"list"})
+     * @Serializer\Expose
      */
     private $id;
     
     /**
      * @ORM\Column(type="string", length=255)
-     *
-     * @Serializer\Groups({"detail", "list"})
+     * @Serializer\Expose
      */
     private $name;
     
     /**
      * @ORM\Column(type="string", length=255)
-     *
-     * @Serializer\Groups({"detail", "list"})
+     * @Serializer\Expose
      */
     private $description;
     
     /**
      * @ORM\Column(type="decimal", precision=10, scale=2)
-     *
-     * @Serializer\Groups({"detail", "list"})
+     * @Serializer\Expose
      */
     private $price;
     
     /**
      * @ORM\Column(type="boolean")
-     *
-     * @Serializer\Groups({"detail", "list"})
+     * @Serializer\Expose
      */
     private $stock;
     
     /**
      * @ORM\Column(type="string", length=255)
-     *
-     * @Serializer\Groups({"detail", "list"})
+     * @Serializer\Expose
      */
     private $brand;
     
