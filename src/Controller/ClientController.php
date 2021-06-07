@@ -53,13 +53,17 @@ class ClientController extends AbstractController
     {
         $clients = $this->clientRepository->findAll();
         
-        return new Response(
+        $response = new Response(
             $this->serializer->serialize(
                 $clients,
                 'json',
                 SerializationContext::create()->setGroups(["Default", "list", "users" => [null]])
             ), 200
         );
+        $response->setMaxAge(3600);
+        $response->setPublic();
+        
+        return $response;
     }
     
     /**
@@ -82,13 +86,17 @@ class ClientController extends AbstractController
             throw $this->createNotFoundException("No client found with this id");
         }
         
-        return new Response(
+        $response = new Response(
             $this->serializer->serialize(
                 $client,
                 'json',
                 SerializationContext::create()->setGroups(["Default", "details"])
             ), 200
         );
+        $response->setMaxAge(3600);
+        $response->setPublic();
+        
+        return $response;
     }
     
     /**
@@ -185,12 +193,16 @@ class ClientController extends AbstractController
             }
             throw new ResourceValidationException($message);
         }
-
+        
         $em = $this->getDoctrine()->getManager();
         $em->flush();
         $context = SerializationContext::create()->setGroups(["details"]);
         
-        return new Response($this->serializer->serialize($client, 'json', $context), 200);
+        $response = new Response($this->serializer->serialize($client, 'json', $context), 200);
+        $response->setMaxAge(3600);
+        $response->setPublic();
+        
+        return $response;
     }
     
     /**
