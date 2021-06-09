@@ -43,7 +43,6 @@ class UserController extends AbstractFOSRestController
     {
         $this->serializer = $serializer;
         $this->userRepository = $userRepository;
-        
     }
     
     /**
@@ -67,7 +66,11 @@ class UserController extends AbstractFOSRestController
         
         $context = SerializationContext::create()->setGroups(['details']);
         
-        return new Response($this->serializer->serialize($user, 'json', $context), 200);
+        $response = new Response($this->serializer->serialize($user, 'json', $context), 200);
+        $response->setMaxAge(3600);
+        $response->setPublic();
+        
+        return $response;
     }
     
     
@@ -103,7 +106,11 @@ class UserController extends AbstractFOSRestController
         
         $context = SerializationContext::create()->setGroups(['details']);
         
-        return new Response($this->serializer->serialize($user, 'json', $context), 201);
+        $response = new Response($this->serializer->serialize($user, 'json', $context), 201);
+        $response->setMaxAge(3600);
+        $response->setPublic();
+        
+        return $response;
     }
     
     /**
@@ -171,7 +178,7 @@ class UserController extends AbstractFOSRestController
             ]
         );
         
-        return new Response(
+        $response = new Response(
             $this->serializer->serialize(
                 $paginated,
                 'json',
@@ -179,5 +186,9 @@ class UserController extends AbstractFOSRestController
             ),
             200
         );
+        $response->setMaxAge(3600);
+        $response->setPublic();
+        
+        return $response;
     }
 }
