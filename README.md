@@ -53,7 +53,7 @@ symfony server:start
 8. Après l'installation des fixtures, utilisez un de ces comptes pour obtenir un token et exploiter les données.
 
    | username  | password            |
-          | --------- | ------------------- |
+   | --------- | ------------------- |
    | cdiscount | motdepassecdiscount |
    | rakuten   | motdepasserakuten   |
    | fnac      | motdepassefnac      |
