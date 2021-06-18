@@ -40,7 +40,7 @@ class Product
     private $name;
     
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=900)
      * @Serializer\Expose
      */
     private $description;
