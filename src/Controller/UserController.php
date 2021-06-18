@@ -22,13 +22,6 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 class UserController extends AbstractFOSRestController
 {
-    
-    /*
-     * Note: no need for client controller => no creation.
-     * Every user's related management is made here.
-     * Need to get current client to manage users
-     */
-    
     /**
      * @var SerializerInterface
      */

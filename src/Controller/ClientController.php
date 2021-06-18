@@ -68,24 +68,24 @@ class ClientController extends AbstractController
     
     /**
      * @Rest\Get(
-     *     path = "/clients/{id}",
+     *     path = "/clients/{username}",
      *     name = "app_clients_show",
-     *     requirements = {"id"="\d+"}
+     *     requirements = {"username"="[a-zA-Z]+"}
      * )
      * @Rest\View(StatusCode=200)
      */
-    public function detailsAction(int $id): Response
+    public function detailsAction(string $username): Response
     {
-        $client = $this->clientRepository->find($id);
+        $client = $this->clientRepository->findOneBy(["username" => $username]);
         $isAdmin = in_array("ROLE_ADMIN", $this->getUser()->getRoles());
-        if ($this->getUser() !== $client || $isAdmin) {
-            throw $this->createAccessDeniedException();
+        if ($this->getUser() !== $client) {
+            if (!$isAdmin) {
+                throw $this->createAccessDeniedException();
+            }
         }
-        
         if ($client == null) {
             throw $this->createNotFoundException("No client found with this id");
         }
-        
         $response = new Response(
             $this->serializer->serialize(
                 $client,

@@ -20,7 +20,7 @@ use Hateoas\Configuration\Annotation as Hateoas;
  *     "self",
  *     href = @Hateoas\Route(
  *     "app_clients_show",
- *     parameters = { "id" = "expr(object.getId())" },
+ *     parameters = { "username" = "expr(object.getUsername())" },
  *     absolute = true
  *     )
  * )
