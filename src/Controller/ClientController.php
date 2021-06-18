@@ -14,10 +14,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-
 
 /**
  * Class ClientController
@@ -140,7 +138,6 @@ class ClientController extends AbstractController
      * @throws ResourceValidationException
      */
     public function updateAction(
-        ValidatorInterface $validator,
         UserPasswordEncoderInterface $encoder,
         Request $request
     ): Response {
@@ -158,10 +155,10 @@ class ClientController extends AbstractController
                 list($k, $v) = explode(':', $array);
                 $data[$k] = $v;
             }
-        } else {
-            list($k, $v) = explode(':', $body);
-            $data[$k] = $v;
         }
+        list($k, $v) = explode(':', $body);
+        $data[$k] = $v;
+        
         if (isset($data['password'])) {
             $client->setPassword($encoder->encodePassword($client, $data['password']));
             if (empty($data['password'])) {
