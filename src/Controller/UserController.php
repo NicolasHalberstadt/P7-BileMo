@@ -32,8 +32,10 @@ class UserController extends AbstractFOSRestController
     private $userRepository;
     
     
-    public function __construct(SerializerInterface $serializer, UserRepository $userRepository)
-    {
+    public function __construct(
+        SerializerInterface $serializer,
+        UserRepository $userRepository
+    ) {
         $this->serializer = $serializer;
         $this->userRepository = $userRepository;
     }
@@ -57,9 +59,14 @@ class UserController extends AbstractFOSRestController
             throw $this->createAccessDeniedException();
         }
         
-        $context = SerializationContext::create()->setGroups(['details']);
+        $context = SerializationContext::create()->setGroups(
+            ['Default', 'details']
+        );
         
-        $response = new Response($this->serializer->serialize($user, 'json', $context), 200);
+        $response = new Response(
+            $this->serializer->serialize($user, 'json', $context),
+            200
+        );
         $response->setMaxAge(3600);
         $response->setPublic();
         
@@ -82,9 +89,14 @@ class UserController extends AbstractFOSRestController
         ConstraintViolationList $violations
     ): Response {
         if (count($violations)) {
-            $message = 'The JSON sent contains invalid data. Here are the errors you need to correct: ';
+            $message =
+                'The JSON sent contains invalid data. Here are the errors you need to correct: ';
             foreach ($violations as $violation) {
-                $message .= sprintf("Field %s: %s ", $violation->getPropertyPath(), $violation->getMessage());
+                $message .= sprintf(
+                    "Field %s: %s ",
+                    $violation->getPropertyPath(),
+                    $violation->getMessage()
+                );
             }
             throw new ResourceValidationException($message);
         }
@@ -99,7 +111,10 @@ class UserController extends AbstractFOSRestController
         
         $context = SerializationContext::create()->setGroups(['details']);
         
-        $response = new Response($this->serializer->serialize($user, 'json', $context), 201);
+        $response = new Response(
+            $this->serializer->serialize($user, 'json', $context),
+            201
+        );
         $response->setMaxAge(3600);
         $response->setPublic();
         
@@ -151,7 +166,9 @@ class UserController extends AbstractFOSRestController
         PaginatorInterface $paginator
     ): Response {
         $client = $this->getUser()->getId();
-        $users = $this->getDoctrine()->getRepository(User::class)->findBy(["client" => "$client"]);
+        $users = $this->getDoctrine()->getRepository(User::class)->findBy(
+            ["client" => "$client"]
+        );
         $paginated = $paginator->paginate(
             $users,
             $paramFetcher->get('page'),
