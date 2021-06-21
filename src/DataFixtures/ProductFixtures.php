@@ -55,6 +55,28 @@ class ProductFixtures extends Fixture
         
         $manager->persist($product);
         
+        $product = new Product();
+        $product->setName("Apple iPhone 12 Mini")
+            ->setBrand("Apple")
+            ->setDescription(
+                "Les smartphones haut de gamme n’ont cessé de proposer des écrans plus grands, des batteries plus grosses et des prix plus élevés. Cependant, certaines marques ont tenu de continuer à satisfaire les amateurs de smartphones de moins de six pouces. C’est le cas de la marque à la Pomme qui, lors de sa keynote l’année dernière, a présenté son smartphone le plus compact : l’iPhone 12 Mini avec une diagonale de 5,4 pouces. "
+            )
+            ->setStock(true)
+            ->setPrice(629);
+        
+        $manager->persist($product);
+        
+        $product = new Product();
+        $product->setName("Xiaomi Redmi Note 10 Pro")
+            ->setBrand("Xiaomi")
+            ->setDescription(
+                "Le Xiaomi Redmi Note 10 Pro est un smartphone 4G de la famille « Redmi Note 10 » annoncé en mars 2021. Tourné autour de la photographie, il est équipé d'un capteur principal de 108 mégapixels épaulé par 3 capteurs secondaires de 8+5+2 mégapixels. Il est équipé d'un SoC Qualcomm Snapdragon 732G, d'une batterie de 5020 mAh et d'un écran Super AMOLED Full HD+ 120 Hz."
+            )
+            ->setStock(true)
+            ->setPrice(249);
+        
+        $manager->persist($product);
+        
         $manager->flush();
     }
 }
