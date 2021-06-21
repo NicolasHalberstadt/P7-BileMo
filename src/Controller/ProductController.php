@@ -41,7 +41,7 @@ class ProductController extends AbstractController
      * @Rest\QueryParam(
      *     name="limit",
      *     requirements="\d+",
-     *     default="10",
+     *     default="5",
      *     description="Max number of products per page."
      * )
      * @Rest\QueryParam(
