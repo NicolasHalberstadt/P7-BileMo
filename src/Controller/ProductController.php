@@ -103,7 +103,6 @@ class ProductController extends AbstractController
         
         $context = SerializationContext::create()->setGroups(
             [
-                'Default',
                 'details',
             ]
         );
