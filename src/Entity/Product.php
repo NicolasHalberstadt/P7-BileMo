@@ -11,7 +11,6 @@ use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\Entity(repositoryClass=ProductRepository::class)
- * @Serializer\ExclusionPolicy("ALL")
  *
  * @Hateoas\Relation(
  *     "self",
@@ -29,37 +28,37 @@ class Product
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      *
-     * @Serializer\Expose
+     * @Serializer\Groups({"details"})
      */
     private $id;
     
     /**
      * @ORM\Column(type="string", length=255)
-     * @Serializer\Expose
+     * @Serializer\Groups({"list", "details"})
      */
     private $name;
     
     /**
      * @ORM\Column(type="string", length=900)
-     * @Serializer\Expose
+     * @Serializer\Groups({"details"})
      */
     private $description;
     
     /**
      * @ORM\Column(type="decimal", precision=10, scale=2)
-     * @Serializer\Expose
+     * @Serializer\Groups({"list", "details"})
      */
     private $price;
     
     /**
      * @ORM\Column(type="boolean")
-     * @Serializer\Expose
+     * @Serializer\Groups({"list", "details"})
      */
     private $stock;
     
     /**
      * @ORM\Column(type="string", length=255)
-     * @Serializer\Expose
+     * @Serializer\Groups({"list", "details"})
      */
     private $brand;
     

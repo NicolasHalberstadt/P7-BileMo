@@ -62,7 +62,23 @@ class ProductController extends AbstractController
             $paramFetcher->get('page'),
             $paramFetcher->get('limit')
         );
-        $response = new Response($this->serializer->serialize($paginated, 'json'), 200);
+        $context = SerializationContext::create()->setGroups(
+            [
+                'Default',
+                'items' => [
+                    'Default',
+                    'list',
+                ],
+            ]
+        );
+        $response = new Response(
+            $this->serializer->serialize(
+                $paginated,
+                'json',
+                $context
+            ),
+            200
+        );
         $response->setMaxAge(3600);
         $response->setPublic();
         
@@ -85,7 +101,20 @@ class ProductController extends AbstractController
             throw $this->createNotFoundException("No product found with this id");
         }
         
-        $response = new Response($this->serializer->serialize($product, 'json'), 200);
+        $context = SerializationContext::create()->setGroups(
+            [
+                'Default',
+                'details',
+            ]
+        );
+        $response = new Response(
+            $this->serializer->serialize(
+                $product,
+                'json',
+                $context
+            ),
+            200
+        );
         $response->setMaxAge(3600);
         $response->setPublic();
         
