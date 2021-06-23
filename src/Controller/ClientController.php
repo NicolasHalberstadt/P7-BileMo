@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Controller;
 
 use App\AppBundle\Exception\ResourceValidationException;
@@ -34,8 +33,10 @@ class ClientController extends AbstractController
      */
     private $clientRepository;
     
-    public function __construct(SerializerInterface $serializer, ClientRepository $clientRepository)
-    {
+    public function __construct(
+        SerializerInterface $serializer,
+        ClientRepository $clientRepository
+    ) {
         $this->serializer = $serializer;
         $this->clientRepository = $clientRepository;
     }
@@ -55,7 +56,9 @@ class ClientController extends AbstractController
             $this->serializer->serialize(
                 $clients,
                 'json',
-                SerializationContext::create()->setGroups(["Default", "list", "users" => [null]])
+                SerializationContext::create()->setGroups(
+                    ["Default", "list", "users" => [null]]
+                )
             ), 200
         );
         $response->setMaxAge(3600);
@@ -82,13 +85,17 @@ class ClientController extends AbstractController
             }
         }
         if ($client == null) {
-            throw $this->createNotFoundException("No client found with this id");
+            throw $this->createNotFoundException(
+                "No client found with this id"
+            );
         }
         $response = new Response(
             $this->serializer->serialize(
                 $client,
                 'json',
-                SerializationContext::create()->setGroups(["Default", "details"])
+                SerializationContext::create()->setGroups(
+                    ["Default", "details"]
+                )
             ), 200
         );
         $response->setMaxAge(3600);
@@ -112,9 +119,14 @@ class ClientController extends AbstractController
         UserPasswordEncoderInterface $encoder
     ): Response {
         if (count($violations)) {
-            $message = 'The JSON sent contains invalid data. Here are the errors you need to correct: ';
+            $message =
+                'The JSON sent contains invalid data. Here are the errors you need to correct: ';
             foreach ($violations as $violation) {
-                $message .= sprintf("Field %s: %s ", $violation->getPropertyPath(), $violation->getMessage());
+                $message .= sprintf(
+                    "Field %s: %s ",
+                    $violation->getPropertyPath(),
+                    $violation->getMessage()
+                );
             }
             throw new ResourceValidationException($message);
         }
@@ -126,7 +138,9 @@ class ClientController extends AbstractController
         $em->flush();
         $context = SerializationContext::create()->setGroups(["details"]);
         
-        return new Response($this->serializer->serialize($client, 'json', $context), 201);
+        return new Response(
+            $this->serializer->serialize($client, 'json', $context), 201
+        );
     }
     
     /**
@@ -160,13 +174,17 @@ class ClientController extends AbstractController
         $data[$k] = $v;
         
         if (isset($data['password'])) {
-            $client->setPassword($encoder->encodePassword($client, $data['password']));
+            $client->setPassword(
+                $encoder->encodePassword($client, $data['password'])
+            );
             if (empty($data['password'])) {
                 $errors[] = "Field Password: This value can't be empty. ";
             }
         }
         if (isset($data['username'])) {
-            if ($this->clientRepository->findOneBy(['username' => $data['username']])) {
+            if ($this->clientRepository->findOneBy(
+                ['username' => $data['username']]
+            )) {
                 $errors[] = "Field Username: This value is already used ";
             } elseif (empty($data['username'])) {
                 $errors[] = "Field Username: This value can't be empty. ";
@@ -175,7 +193,9 @@ class ClientController extends AbstractController
             }
         }
         if (isset($data['email'])) {
-            if ($this->clientRepository->findOneBy(['email' => $data['email']])) {
+            if ($this->clientRepository->findOneBy(
+                ['email' => $data['email']]
+            )) {
                 $errors[] = "Field Email: This value is already used ";
             } elseif (empty($data['email'])) {
                 $errors[] = "Field Email: This value can't be empty. ";
@@ -184,7 +204,8 @@ class ClientController extends AbstractController
             }
         }
         if (!empty($errors)) {
-            $message = 'The JSON sent contains invalid data. Here are the errors you need to correct: ';
+            $message =
+                'The JSON sent contains invalid data. Here are the errors you need to correct: ';
             foreach ($errors as $error) {
                 $message .= $error;
             }
@@ -193,9 +214,11 @@ class ClientController extends AbstractController
         
         $em = $this->getDoctrine()->getManager();
         $em->flush();
-        $context = SerializationContext::create()->setGroups(["details"]);
+        $context = SerializationContext::create()->setGroups(["list"]);
         
-        $response = new Response($this->serializer->serialize($client, 'json', $context), 200);
+        $response = new Response(
+            $this->serializer->serialize($client, 'json', $context), 200
+        );
         $response->setMaxAge(3600);
         $response->setPublic();
         
@@ -215,7 +238,9 @@ class ClientController extends AbstractController
     ): Response {
         $client = $this->clientRepository->find($id);
         if ($client == null) {
-            throw $this->createNotFoundException("No client found with this id");
+            throw $this->createNotFoundException(
+                "No client found with this id"
+            );
         }
         $em = $this->getDoctrine()->getManager();
         $em->remove($client);

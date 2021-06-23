@@ -32,8 +32,6 @@ class ProductListener implements EventSubscriberInterface
     
     public static function onPostSerialize(ObjectEvent $event)
     {
-        $object = $event->getObject();
-        
         $date = new DateTime();
         $event->getVisitor()->visitProperty(
             new StaticPropertyMetadata('', 'delivered_at', null),
