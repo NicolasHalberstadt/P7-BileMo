@@ -59,7 +59,8 @@ class ClientController extends AbstractController
                 SerializationContext::create()->setGroups(
                     ["Default", "list", "users" => [null]]
                 )
-            ), 200
+            ),
+            200
         );
         $response->setMaxAge(3600);
         $response->setPublic();
@@ -110,7 +111,12 @@ class ClientController extends AbstractController
      *     name = "app_client_create"
      * )
      * @Rest\View(StatusCode=201)
-     * @ParamConverter("client", class="App\Entity\Client", converter="fos_rest.request_body", options={"deserializationContext"={"groups"={"creation"}}})
+     * @ParamConverter(
+     *     "client",
+     *     class="App\Entity\Client",
+     *     converter="fos_rest.request_body",
+     *     options={"deserializationContext"={"groups"={"creation"}}}
+     *     )
      * @throws ResourceValidationException
      */
     public function createAction(
