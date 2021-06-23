@@ -23,7 +23,7 @@ class ExceptionNormalizerPass implements CompilerPassInterface
             ->findDefinition('app.exception_subscriber');
         $normalizers = $container->findTaggedServiceIds('app.normalizer');
         
-        foreach ($normalizers as $id) {
+        foreach ($normalizers as $id => $tags) {
             $exceptionListenerDef->addMethodCall(
                 'addNormalizer',
                 [new Reference($id)]
