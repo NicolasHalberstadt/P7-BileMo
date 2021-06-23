@@ -145,7 +145,12 @@ class ClientController extends AbstractController
         $context = SerializationContext::create()->setGroups(["details"]);
         
         return new Response(
-            $this->serializer->serialize($client, 'json', $context), 201
+            $this->serializer->serialize(
+                $client,
+                'json',
+                $context
+            ),
+            201
         );
     }
     
@@ -188,9 +193,7 @@ class ClientController extends AbstractController
             }
         }
         if (isset($data['username'])) {
-            if ($this->clientRepository->findOneBy(
-                ['username' => $data['username']]
-            )) {
+            if ($this->clientRepository->findOneBy(['username' => $data['username']])) {
                 $errors[] = "Field Username: This value is already used ";
             } elseif (empty($data['username'])) {
                 $errors[] = "Field Username: This value can't be empty. ";
@@ -199,9 +202,7 @@ class ClientController extends AbstractController
             }
         }
         if (isset($data['email'])) {
-            if ($this->clientRepository->findOneBy(
-                ['email' => $data['email']]
-            )) {
+            if ($this->clientRepository->findOneBy(['email' => $data['email']])) {
                 $errors[] = "Field Email: This value is already used ";
             } elseif (empty($data['email'])) {
                 $errors[] = "Field Email: This value can't be empty. ";
@@ -210,8 +211,7 @@ class ClientController extends AbstractController
             }
         }
         if (!empty($errors)) {
-            $message =
-                'The JSON sent contains invalid data. Here are the errors you need to correct: ';
+            $message = 'The JSON sent contains invalid data. Here are the errors you need to correct: ';
             foreach ($errors as $error) {
                 $message .= $error;
             }
@@ -223,7 +223,12 @@ class ClientController extends AbstractController
         $context = SerializationContext::create()->setGroups(["list"]);
         
         $response = new Response(
-            $this->serializer->serialize($client, 'json', $context), 200
+            $this->serializer->serialize(
+                $client,
+                'json',
+                $context
+            ),
+            200
         );
         $response->setMaxAge(3600);
         $response->setPublic();
